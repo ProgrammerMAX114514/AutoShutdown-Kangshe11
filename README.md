@@ -97,7 +97,7 @@ python AutoShutdown-Kangshe11.py
 
 - 作者：WuRuizhao
 - 当前版本：v0.3.0-dev
-- 欢迎提出 Issue 或 Pull Request（如未来开源协作）。
+- 欢迎提出 Issue 或 Pull Request。
 - 如你有改进建议、Bug 反馈，或想要添加新功能（如自定义关机时间 GUI、配置文件编辑器等），欢迎联系！
 
 ---
