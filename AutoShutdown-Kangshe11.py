@@ -264,8 +264,9 @@ def prevent_multiple_instances():
         showerror(global_title, f"程序启动失败！{global_suffix}")
         _exit(1)
 
-# ---- Program Entry Point ----
-if __name__ == "__main__":
+# ---- Main Program Logic ----
+def main():
+    global root, config
     # Create hidden Tk root window (required for tkinter dialogs and root.after)
     root = Tk()
     root.attributes('-topmost', True)
@@ -294,3 +295,12 @@ if __name__ == "__main__":
     except Exception as e:
         log("ERROR", f"程序异常退出！异常信息: {e}")
         showerror(global_title, f"An error occurred while running the program:\n{e}\nTurn to the log file for more details.{global_suffix}")
+
+# ---- Program Entry Point ----
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        log("ERROR", f"程序异常退出！异常信息: {e}")
+        showerror(global_title, f"An error occurred while running the program:\n{e}\nTurn to the log file for more details.{global_suffix}")
+        _exit(1)
