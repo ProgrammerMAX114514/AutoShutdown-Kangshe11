@@ -5,7 +5,6 @@
 from tkinter import Tk
 from tkinter.messagebox import askyesno, showinfo, showerror
 from datetime import datetime, timedelta
-from sys import argv, exit
 import sys
 import json
 from subprocess import call
@@ -27,6 +26,10 @@ Copyright © 2025 WuRuizhao@Kangshe11"""
 # Global variables for logging filename and start time
 start_time = ""
 file_name = ""
+
+# ---- Safe Exit in Main Thread ----
+def _exit(exit_code=0):
+    root.after(0, lambda: sys.exit(exit_code))
 
 # ---- System & Admin Related ----
 def is_admin():
@@ -60,6 +63,8 @@ def log(level, msg):
         level (str): Log level, e.g., 'INFO', 'ERROR'
         msg (str): The message to log
     """
+    if level.lower() not in ['debug', 'info', 'warn', 'error', 'fatal']:
+        raise ValueError(f'Invalid log level: {level}')
     if "logs" not in os.listdir('.'):
         os.mkdir('logs')
     with open(f'./logs/{file_name}', 'a', encoding='utf-8') as f:
@@ -114,13 +119,13 @@ def shutdown():
 要取消关机，请点击“否”，系统将取消关机，您可以继续使用系统。{global_suffix}""")
     if ans:
         log("INFO", "用户确认关机，程序将退出。")
-        call(["taskkill", "/F", "/PID",str(os.getpid())])
+        _exit()
     if not ans:
         cancel_shutdown()
         log("INFO", "用户取消关机，已调用取消命令。")
         showinfo(global_title, f"已取消关机。{global_suffix}")
         log("INFO", "用户取消关机，程序退出。")
-        call(["taskkill", "/F", "/PID",str(os.getpid())])
+        _exit()
     return
 
 def cancel_shutdown():
@@ -202,7 +207,7 @@ def on_tray_exit():
     """Callback when user selects 'Exit' from system tray menu."""
     log("INFO", "用户点击了退出按钮。")
     icon.stop()
-    call(["taskkill", "/F", "/PID",str(os.getpid())])
+    _exit(0)
     return
 
 def tray():
@@ -251,13 +256,13 @@ def prevent_multiple_instances():
     if last_error == ERROR_ALREADY_EXISTS:
         log("WARN", "检测到程序已在运行，阻止新实例启动。")
         showerror(global_title, f"程序已经在运行中，请勿多开程序！{global_suffix}")
-        sys.exit(1)
+        _exit(1)
     elif mutex:
         log("INFO", "程序启动成功，当前为唯一运行实例。")
     else:
         log("ERROR", "无法创建互斥锁，未知错误。")
         showerror(global_title, f"程序启动失败！{global_suffix}")
-        sys.exit(1)
+        _exit(1)
 
 # ---- Program Entry Point ----
 if __name__ == "__main__":
@@ -272,7 +277,7 @@ if __name__ == "__main__":
         except:
             log("ERROR","无法加载配置文件！")
             showerror(global_title, f"无法加载配置文件！{global_suffix}")
-            exit(1)
+            _exit(1)
         set_time()
         check_admin()
         log("INFO", f"程序启动的时间是 {start_time}。")
